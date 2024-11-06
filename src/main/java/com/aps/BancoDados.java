@@ -6,7 +6,7 @@ import java.util.List;
 
 public class BancoDados {
 
-    private static final String URL = "jdbc:h2:~/faculdadeApp";
+    private static final String URL = "jdbc:h2:./database/faculdadeApp";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 

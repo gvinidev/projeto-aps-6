@@ -1,18 +1,16 @@
 package com.aps;
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
-import org.opencv.core.MatOfRect;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.util.ArrayList;
 
 public class TelaAutenticacaoBiometria extends JFrame {
 
@@ -22,7 +20,7 @@ public class TelaAutenticacaoBiometria extends JFrame {
     }
 
     private JLabel lblCamera;
-    private JButton btnAutenticar;
+    private JButton btnAutenticar, btnVoltarLogin;
     private VideoCapture camera;
     private Mat frame;
     private String emailUsuario;
@@ -33,7 +31,7 @@ public class TelaAutenticacaoBiometria extends JFrame {
         this.emailUsuario = email;
 
         setTitle("Autenticação Facial");
-        setSize(500, 400);
+        setSize(800, 600); // Aumenta o tamanho da tela
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -62,9 +60,18 @@ public class TelaAutenticacaoBiometria extends JFrame {
         btnAutenticar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         btnAutenticar.addActionListener(e -> autenticarImagem());
 
+        btnVoltarLogin = new JButton("Voltar para Login");
+        btnVoltarLogin.setBackground(new Color(255, 69, 0)); // Cor laranja
+        btnVoltarLogin.setForeground(Color.WHITE);
+        btnVoltarLogin.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btnVoltarLogin.setFocusPainted(false);
+        btnVoltarLogin.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnVoltarLogin.addActionListener(e -> voltarParaLogin());
+
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBackground(panel.getBackground());
         bottomPanel.add(btnAutenticar);
+        bottomPanel.add(btnVoltarLogin);
 
         JLabel lblTitulo = new JLabel("Autenticação Facial");
         lblTitulo.setForeground(Color.WHITE);
@@ -153,40 +160,86 @@ public class TelaAutenticacaoBiometria extends JFrame {
 
     // Compara duas imagens e verifica a similaridade entre elas
     private boolean compararImagens(Mat imagemAtual, Mat imagemSalva) {
+        // Redimensiona a imagem atual para o tamanho da imagem salva
         Mat imagemAtualRedimensionada = new Mat();
         Imgproc.resize(imagemAtual, imagemAtualRedimensionada, imagemSalva.size());
 
+        // Converte as imagens para escala de cinza (se não estiverem já em escala de cinza)
+        Mat imagemAtualCinza = new Mat();
+        Mat imagemSalvaCinza = new Mat();
+
+        // Verifica se a imagem já está em escala de cinza
+        if (imagemAtualRedimensionada.channels() > 1) {
+            Imgproc.cvtColor(imagemAtualRedimensionada, imagemAtualCinza, Imgproc.COLOR_BGR2GRAY);
+        } else {
+            imagemAtualCinza = imagemAtualRedimensionada;
+        }
+
+        if (imagemSalva.channels() > 1) {
+            Imgproc.cvtColor(imagemSalva, imagemSalvaCinza, Imgproc.COLOR_BGR2GRAY);
+        } else {
+            imagemSalvaCinza = imagemSalva;
+        }
+
+        // Calcula a diferença absoluta entre as duas imagens
         Mat diff = new Mat();
-        Core.absdiff(imagemAtualRedimensionada, imagemSalva, diff);
-        Core.multiply(diff, diff, diff);
+        Core.absdiff(imagemAtualCinza, imagemSalvaCinza, diff);
 
+        // Calcula a soma dos elementos da imagem de diferença
         double somatorio = Core.sumElems(diff).val[0];
-        double totalPixels = imagemAtualRedimensionada.total();
 
+        // Normaliza a soma pela quantidade de pixels
+        double totalPixels = diff.total();
         double mediaDiferenca = somatorio / totalPixels;
 
-        return mediaDiferenca < 1000;
+        // Se a média de diferença for maior que um limiar, as imagens são diferentes
+        double limiar = 30;  // Ajuste conforme necessário para a sensibilidade
+        if (mediaDiferenca > limiar) {
+            return false; // As imagens são diferentes
+        }
+
+        // Alternativamente, podemos comparar os histogramas para um método mais robusto
+        java.util.List<Mat> imagens = new ArrayList<>();
+        imagens.add(imagemAtualCinza);
+        imagens.add(imagemSalvaCinza);
+
+        Mat histAtual = new Mat();
+        Mat histSalvo = new Mat();
+
+        // Calcula o histograma para cada imagem
+        Imgproc.calcHist(imagens, new MatOfInt(0), new Mat(), histAtual, new MatOfInt(256), new MatOfFloat(0f, 256f));
+        Imgproc.calcHist(imagens, new MatOfInt(0), new Mat(), histSalvo, new MatOfInt(256), new MatOfFloat(0f, 256f));
+
+        // Normaliza os histogramas
+        Core.normalize(histAtual, histAtual, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+        Core.normalize(histSalvo, histSalvo, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+
+        // Calcula a correlação entre os dois histogramas
+        double correlacao = Imgproc.compareHist(histAtual, histSalvo, Imgproc.CV_COMP_CORREL);
+
+        // Se a correlação for maior que 0.7, as imagens são semelhantes
+        return correlacao > 0.7;
     }
 
-    // Converte um objeto Mat (OpenCV) em BufferedImage para exibição
-    private BufferedImage convertMatToImage(Mat mat) {
-        int width = mat.width();
-        int height = mat.height();
-        int channels = mat.channels();
-        byte[] sourcePixels = new byte[width * height * channels];
-        mat.get(0, 0, sourcePixels);
-
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
-
-        return image;
+    private void voltarParaLogin() {
+        // Volta para a tela de login
+        TelaLogin telaLogin = new TelaLogin();
+        telaLogin.setVisible(true);
+        dispose();
     }
 
-    @Override
-    public void dispose() {
-        // Libera a câmera ao fechar a aplicação
-        camera.release();
-        super.dispose();
+    // Converte uma imagem do tipo Mat para Image
+    private Image convertMatToImage(Mat frame) {
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (frame.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+        BufferedImage imagem = new BufferedImage(frame.width(), frame.height(), type);
+        frame.get(0, 0, ((DataBufferByte) imagem.getRaster().getDataBuffer()).getData());
+        return imagem;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TelaAutenticacaoBiometria("usuario@example.com").setVisible(true));
     }
 }

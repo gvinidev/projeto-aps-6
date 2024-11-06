@@ -46,6 +46,13 @@ public class TelaPrincipal extends JFrame {
         painelNavegacao.add(btnVoltarMenu);
         painelNavegacao.add(Box.createVerticalStrut(15));
 
+        // Botão para voltar à tela de login
+        JButton btnVoltarLogin = new JButton("Voltar para Login");
+        styleButtonLogin(btnVoltarLogin);
+        btnVoltarLogin.addActionListener(e -> voltarParaLogin());
+        painelNavegacao.add(btnVoltarLogin);
+        painelNavegacao.add(Box.createVerticalStrut(15));
+
         // Adicionando botões de acordo com o nível de permissão
         if (nivelPermissao >= 1) {
             JButton btnEmpresasFichadas = new JButton("Empresas Fichadas");
@@ -91,6 +98,15 @@ public class TelaPrincipal extends JFrame {
 
     private void styleButton(JButton button) {
         button.setBackground(new Color(30, 144, 255));
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("SansSerif", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+
+    private void styleButtonLogin(JButton button) {
+        button.setBackground(new Color(87, 31, 255));
         button.setForeground(Color.WHITE);
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
         button.setFocusPainted(false);
@@ -177,9 +193,17 @@ public class TelaPrincipal extends JFrame {
         painelCentral.repaint();
     }
 
-
     private void mostrarTelaGerenciarUsuarios() {
         TelaGerenciarUsuarios telaGerenciarUsuarios = new TelaGerenciarUsuarios();
         telaGerenciarUsuarios.setVisible(true);
+    }
+
+    private void voltarParaLogin() {
+        // Fecha a tela atual (TelaPrincipal)
+        this.dispose();
+
+        // Aqui você deve criar a instância da tela de login e exibi-la
+        TelaLogin telaLogin = new TelaLogin(); // Certifique-se de que a classe TelaLogin está implementada
+        telaLogin.setVisible(true);
     }
 }
