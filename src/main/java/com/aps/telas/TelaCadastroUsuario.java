@@ -1,4 +1,6 @@
-package com.aps;
+package com.aps.telas;
+
+import com.aps.database.BancoDados;
 
 import javax.swing.*;
 import java.awt.*;

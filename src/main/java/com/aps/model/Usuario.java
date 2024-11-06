@@ -1,4 +1,4 @@
-package com.aps;
+package com.aps.model;
 
 public class Usuario {
     private int id;

@@ -1,4 +1,7 @@
-package com.aps;
+package com.aps.telas;
+
+import com.aps.model.Usuario;
+import com.aps.database.BancoDados;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;

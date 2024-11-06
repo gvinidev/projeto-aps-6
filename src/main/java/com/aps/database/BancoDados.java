@@ -1,4 +1,6 @@
-package com.aps;
+package com.aps.database;
+
+import com.aps.model.Usuario;
 
 import java.sql.*;
 import java.util.ArrayList;

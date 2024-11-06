@@ -1,4 +1,4 @@
-package com.aps;
+package com.aps.telas;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;

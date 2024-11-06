@@ -1,5 +1,6 @@
-package com.aps;
+package com.aps.telas;
 
+import com.aps.database.BancoDados;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
