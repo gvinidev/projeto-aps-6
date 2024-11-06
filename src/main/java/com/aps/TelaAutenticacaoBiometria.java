@@ -18,7 +18,7 @@ public class TelaAutenticacaoBiometria extends JFrame {
 
     static {
         // Carrega a biblioteca OpenCV
-        System.load("D:\\Code\\opencv\\build\\java\\x64\\opencv_java490.dll");
+        System.load("D:\\Code\\maven\\projeto-aps\\src\\main\\resources\\opencv_java490.dll");
     }
 
     private JLabel lblCamera;
@@ -39,7 +39,7 @@ public class TelaAutenticacaoBiometria extends JFrame {
         setResizable(false);
 
         // Utilização de face detector externo
-        faceDetector = new CascadeClassifier("D:\\Code\\maven\\projeto-aps\\src\\main\\resources\\haarcascade_frontalface_alt.xml");
+        faceDetector = new CascadeClassifier("src/main/resources/haarcascade_frontalface_alt.xml");
         iniciarComponentes();
         iniciarCamera();
     }
@@ -129,7 +129,7 @@ public class TelaAutenticacaoBiometria extends JFrame {
 
                 JOptionPane.showMessageDialog(this, "Autenticação bem-sucedida!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
-                TelaPrincipal telaPrincipal = new TelaPrincipal(nivelPermissao);
+                TelaPrincipal telaPrincipal = new TelaPrincipal(nivelPermissao, emailUsuario);
                 telaPrincipal.setVisible(true);
                 dispose();
             } else {

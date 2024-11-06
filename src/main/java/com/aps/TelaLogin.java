@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class TelaLogin extends JFrame {
 
@@ -119,6 +120,13 @@ public class TelaLogin extends JFrame {
 
     // Método responsável por autenticar o usuário, neste caso direcionando para a tela de biometria
     private void autenticarUsuario(String email) {
+        List<Usuario> usuarios = BancoDados.obterUsuarios();
+
+        if (!usuarios.stream().anyMatch(u -> u.getEmail().equals(email))) {
+            JOptionPane.showMessageDialog(this, "Usuário não encontrado. Tente novamente.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         TelaAutenticacaoBiometria telaBiometria = new TelaAutenticacaoBiometria(email);
         telaBiometria.setVisible(true);
         dispose();
