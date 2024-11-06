@@ -46,9 +46,13 @@ public class TelaPrincipal extends JFrame {
             painelNavegacao.add(Box.createVerticalStrut(10));
             painelNavegacao.add(btnInformacoesDetalhadas);
         }
-        if (nivelPermissao >= 3) {
+
+        if (nivelPermissao == 3) {
+            JButton btnGerenciarUsuarios = new JButton("Gerenciar Usuários");
+            styleButton(btnGerenciarUsuarios);
+            btnGerenciarUsuarios.addActionListener(e -> abrirTelaGerenciarUsuarios());
             painelNavegacao.add(Box.createVerticalStrut(10));
-            painelNavegacao.add(btnAcessoCompleto);
+            painelNavegacao.add(btnGerenciarUsuarios);
         }
 
         // Painel Central
@@ -96,4 +100,10 @@ public class TelaPrincipal extends JFrame {
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
         button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     }
+
+    private void abrirTelaGerenciarUsuarios() {
+        TelaGerenciarUsuarios telaGerenciarUsuarios = new TelaGerenciarUsuarios();
+        telaGerenciarUsuarios.setVisible(true);
+    }
+
 }

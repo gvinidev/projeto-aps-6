@@ -1,6 +1,8 @@
 package com.aps;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BancoDados {
 
@@ -85,6 +87,38 @@ public class BancoDados {
             e.printStackTrace();
         }
         return nivelPermissao;
+    }
+    public static List<Usuario> obterUsuarios() {
+        List<Usuario> usuarios = new ArrayList<>();
+        String sql = "SELECT id, email, permissao FROM Usuario";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String email = rs.getString("email");
+                int permissao = rs.getInt("permissao");
+                usuarios.add(new Usuario(id, email, permissao));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarios;
+    }
+
+    public static void atualizarPermissaoUsuario(int id, int novaPermissao) {
+        String sqlUpdate = "UPDATE Usuario SET permissao = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
+
+            pstmt.setInt(1, novaPermissao);
+            pstmt.setInt(2, id);
+            pstmt.executeUpdate();
+            System.out.println("Permissão do usuário atualizada com sucesso.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

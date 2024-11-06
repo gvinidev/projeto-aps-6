@@ -83,8 +83,9 @@ public class TelaCadastroUsuario extends JFrame {
 
             String email = txtEmail.getText();
             String senha = new String(txtSenha.getPassword());
+            String diretorioImagem = String.format("imagens/%s", email);
 
-            BancoDados.atualizarDiretorioImagem(email, senha);
+            BancoDados.adicionarUsuario(email, senha, 1, diretorioImagem);
             JOptionPane.showMessageDialog(this, "Usuário cadastrado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
             dispose();
